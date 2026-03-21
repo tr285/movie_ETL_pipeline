@@ -10,11 +10,10 @@ API_KEY = os.getenv("API_KEY")
 # DB connection
 conn = mysql.connector.connect(
     host="localhost",
-    user="root",
+    user="etl_user",
     password="tukaram143",
     database="movie_db"
 )
-
 cursor = conn.cursor()
 
 # Extract + Transform (reuse logic)
