@@ -1,20 +1,21 @@
 import requests
+import pandas as pd
 import os
 import mysql.connector
-from dotenv import load_dotenv
+
 
 load_dotenv()
 
-API_KEY = os.getenv("API_KEY")
+API_KEY = st.secrets["95b004a25357fddd1f5995fb9de2c79b"]
 
-# DB connection
-conn = mysql.connector.connect(
-    host="localhost",
-    user="etl_user",
-    password="tukaram143",
-    database="movie_db"
-)
-cursor = conn.cursor()
+import streamlit as st
+import pandas as pd
+import plotly.express as px
+
+st.set_page_config(page_title="Movie Dashboard", layout="wide")
+
+df = pd.read_csv("movies.csv")
+df['release_date'] = pd.to_datetime(df['release_date'])
 
 # Extract + Transform (reuse logic)
 url = f"https://api.themoviedb.org/3/movie/popular?api_key={API_KEY}"
@@ -48,3 +49,8 @@ print("✅ Data inserted successfully!")
 
 cursor.close()
 conn.close()
+
+df = pd.DataFrame(clean_data)
+df.to_csv("movies.csv", index=False)
+
+print("✅ CSV file created!")

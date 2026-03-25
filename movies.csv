@@ -1,0 +1,2 @@
+df = pd.DataFrame(clean_data)
+df.to_csv("movies.csv", index=False)
