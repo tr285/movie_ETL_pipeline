@@ -8,7 +8,7 @@ st.set_page_config(page_title="Live Movie Dashboard", layout="wide")
 st.title("🎬 Live Movie Dashboard")
 
 # 🔐 API key from Streamlit secrets
-API_KEY = st.secrets["API_KEY"]
+API_KEY = st.secrets[""]
 
 # Fetch live data
 url = f"https://api.themoviedb.org/3/movie/popular?api_key={API_KEY}"
