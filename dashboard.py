@@ -1,30 +1,45 @@
 import streamlit as st
-import mysql.connector
 import pandas as pd
+import requests
+import plotly.express as px
 
-st.title("🎬 Movie ETL Dashboard")
+st.set_page_config(page_title="Live Movie Dashboard", layout="wide")
 
-# DB connection
-conn = mysql.connector.connect(
-    host="localhost",
-    user="root",
-    password="tukaram143",
-    database="movie_db"
-)
+st.title("🎬 Live Movie Dashboard")
 
-query = "SELECT * FROM movies"
-df = pd.read_sql(query, conn)
+# 🔐 API key from Streamlit secrets
+API_KEY = st.secrets["API_KEY"]
 
-# Show data
-st.subheader("📊 Movie Data")
+# Fetch live data
+url = f"https://api.themoviedb.org/3/movie/popular?api_key={API_KEY}"
+response = requests.get(url)
+data = response.json()
+
+movies = []
+
+for m in data['results']:
+    movies.append({
+        "title": m.get('title'),
+        "release_date": m.get('release_date'),
+        "rating": m.get('vote_average'),
+        "popularity": m.get('popularity')
+    })
+
+df = pd.DataFrame(movies)
+df['release_date'] = pd.to_datetime(df['release_date'])
+
+# KPI
+col1, col2, col3 = st.columns(3)
+col1.metric("🎥 Movies", len(df))
+col2.metric("⭐ Avg Rating", round(df['rating'].mean(), 2))
+col3.metric("🔥 Max Popularity", round(df['popularity'].max(), 2))
+
+st.markdown("---")
+
+# Table
 st.dataframe(df)
 
-# Top rated movies
-st.subheader("⭐ Top Rated Movies")
-top_movies = df.sort_values(by="rating", ascending=False).head(10)
-st.dataframe(top_movies)
-
-# Popular movies
-st.subheader("🔥 Most Popular Movies")
-popular_movies = df.sort_values(by="popularity", ascending=False).head(10)
-st.dataframe(popular_movies)
+# Charts
+fig = px.bar(df.sort_values("rating", ascending=False).head(10),
+             x="title", y="rating", title="Top Rated Movies")
+st.plotly_chart(fig, use_container_width=True)
